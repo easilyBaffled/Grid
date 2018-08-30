@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { flatten } from 'lodash';
+import { flatten, pickBy, keys } from 'lodash';
 import { lensPath, set, view } from 'ramda';
 import './styles.css';
 
@@ -25,8 +25,11 @@ class Cell {
     updateCell = (key, value) => new Cell(...this, { [key]: value });
 
     set state(val) {
-        console.log('setting state', val);
-        // this.state = val;
+        this._state = { ...this._state, ...val };
+    }
+
+    get state() {
+        return this._state;
     }
 }
 
@@ -43,14 +46,15 @@ class Grid {
 
 const g = new Grid(5);
 
-const CellCMP = ({ x, y, updateGridCell, ...props }) => (
+const CellCMP = ({ x, y, fuel, updateGridCell, ...props }) => (
     <div
-        className="cell"
+        className={'cell ' + keys(pickBy(props.state, v => v))}
         onClick={() => updateGridCell('state', { burning: true })}
         onDoubleClick={() => console.log({ x, y, ...props })}
     >
         <code>
             {x}, {y}
+            <p>{fuel}</p>
         </code>
     </div>
 );
@@ -61,12 +65,11 @@ class App extends React.Component {
     };
 
     updateGridCell = (x, y) => (key, value) => {
-        console.log(key, view(lensPath(['grid', y, x]), this.state.g));
-        // const cell = view(lensPath(['grid', y, x]), this.state.g);
-        // console.log( cell )
-        // const updatedCell = cell.updateCell( key, value );
-        console.log(set(lensPath(['grid', y, x, key]), value, this.state.g));
+        this.setState(
+            set(lensPath(['g', 'grid', y, x, key]), value, this.state)
+        );
     };
+
     render() {
         return (
             <div className="board">

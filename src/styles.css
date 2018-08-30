@@ -23,3 +23,7 @@
     justify-content: center;
     align-items: center;
 }
+
+.burning {
+    background-image: linear-gradient(135deg, #f05f57 10%, #360940 100%);
+}
