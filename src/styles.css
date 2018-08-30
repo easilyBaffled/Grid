@@ -1,0 +1,25 @@
+:root {
+    --cell-size: 50px;
+    --cells-per-row: 5;
+}
+
+.App {
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.board {
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(var(--cells-per-row) * var(--cell-size));
+}
+
+.cell {
+    box-sizing: border-box;
+    border: 1px solid black;
+    height: var(--cell-size);
+    width: var(--cell-size);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,2 +1,0 @@
-# Grid
-Created with CodeSandbox
