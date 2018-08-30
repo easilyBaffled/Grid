@@ -22,8 +22,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
-.burning {
+.burning:after {
+    content: '';
+    position: absolute;
+    height: var(--cell-size);
+    width: var(--cell-size);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: -1;
     background-image: linear-gradient(135deg, #f05f57 10%, #360940 100%);
+    animation: 2s fade infinite alternate;
+}
+
+@keyframes fade {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
