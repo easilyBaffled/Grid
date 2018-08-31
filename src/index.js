@@ -8,11 +8,13 @@ console.ident = v => (console.log(v), v);
 
 const stateResolvers = {
     // state name: resolverFunction
-    burning: obj =>
-        obj.fuel > 0
-            ? { ...obj, fuel: obj.fuel - 1 }
-            : { ...obj, burning: false }
+    burning: cell =>
+        console.ident(cell).fuel > 0
+            ? cell.update('fuel', cell.fuel - 1)
+            : (cell.state = { burning: false })
 };
+
+const getActiveStates = state => keys(pickBy(state, v => v));
 
 class Cell {
     constructor({
@@ -20,9 +22,13 @@ class Cell {
         state = {},
         ...props
     }) {
+        console.log(props);
         Object.assign(this, { fuel, state }, props);
     }
-    updateCell = (key, value) => new Cell(...this, { [key]: value });
+
+    update(key, value) {
+        return new Cell(...this, { [key]: value });
+    }
 
     set state(val) {
         this._state = { ...this._state, ...val };
@@ -44,11 +50,11 @@ class Grid {
     getCell = (x, y) => this.grid[y][x];
 }
 
-const g = new Grid(5);
+const g = new Grid(2);
 
 const CellCMP = ({ x, y, fuel, updateGridCell, ...props }) => (
     <div
-        className={'cell ' + keys(pickBy(props.state, v => v))}
+        className={'cell ' + getActiveStates(props.state).join(' ')}
         onClick={() => updateGridCell('state', { burning: true })}
         onDoubleClick={() => console.log({ x, y, ...props })}
     >
@@ -69,6 +75,24 @@ class App extends React.Component {
             set(lensPath(['g', 'grid', y, x, key]), value, this.state)
         );
     };
+
+    tick = () => {
+        this.setState();
+        const newGrid = this.state.g.grid.map(row =>
+            row.map(cell =>
+                getActiveStates(cell.state).reduce(
+                    (c, activeState) => stateResolvers[activeState](c),
+                    cell
+                )
+            )
+        );
+        console.log(newGrid);
+        this.setState(set(lensPath(['g', 'grid']), newGrid, this.state));
+    };
+
+    componentDidUpdate() {
+        setTimeout(this.tick, 1000);
+    }
 
     render() {
         return (
